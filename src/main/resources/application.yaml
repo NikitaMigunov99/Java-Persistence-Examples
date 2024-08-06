@@ -15,4 +15,5 @@ spring:
     password: password
     driverClassName: org.h2.Driver
   jpa:
+    show-sql: true
     database-platform: org.hibernate.dialect.H2Dialect
