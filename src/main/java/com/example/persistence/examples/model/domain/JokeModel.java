@@ -1,5 +1,8 @@
-package com.example.persistence.examples.domain.model;
+package com.example.persistence.examples.model.domain;
 
+/**
+ * Model of joke
+ */
 public record JokeModel(
         String id,
         String type,

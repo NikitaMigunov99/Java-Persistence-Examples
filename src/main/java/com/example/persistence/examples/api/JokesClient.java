@@ -1,6 +1,6 @@
 package com.example.persistence.examples.api;
 
-import com.example.persistence.examples.domain.model.JokeModel;
+import com.example.persistence.examples.model.domain.JokeModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
