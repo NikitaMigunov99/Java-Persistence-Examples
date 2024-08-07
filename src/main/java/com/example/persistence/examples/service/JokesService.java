@@ -9,8 +9,6 @@ import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.repository.JokesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -47,11 +45,11 @@ public final class JokesService {
         return mapper.convert(entities);
     }
 
-    public void saveJoke(@RequestBody JokeSaveRequest request) {
+    public void saveJoke(JokeSaveRequest request) {
         repository.save(new JokeEntity(request.type(), request.setup(), request.punchline()));
     }
 
-    public void saveJokeById(@PathVariable String id) {
+    public void saveJokeById(String id) {
         JokeModel model = client.getJokeById(id);
         repository.save(new JokeEntity(model.type(), model.setup(), model.punchline()));
     }
@@ -67,5 +65,9 @@ public final class JokesService {
 
     public List<JokeView> getJokeByType(String type) {
         return repository.getJokeByType(type);
+    }
+
+    public void updateJokesType(String type) {
+        repository.updateJokesType(type);
     }
 }
