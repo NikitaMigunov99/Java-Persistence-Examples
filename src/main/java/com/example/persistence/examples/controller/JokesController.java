@@ -1,5 +1,7 @@
 package com.example.persistence.examples.controller;
 
+import com.example.persistence.examples.model.db.JokeEntity;
+import com.example.persistence.examples.model.db.JokeView;
 import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.service.JokesService;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -65,5 +68,15 @@ public class JokesController {
     public ResponseEntity<String> getJokesCount() {
         int count = jokesService.getJokesCount();
         return ResponseEntity.ok("Jokes count is " + count);
+    }
+
+    @GetMapping("/jokes/db/punchline")
+    public ResponseEntity<List<JokeModel>> findByPunchlineStartsWith(@RequestParam String word) {
+        return ResponseEntity.ok(jokesService.findByPunchlineStartsWith(word));
+    }
+
+    @GetMapping("/jokes/db/type")
+    public ResponseEntity<List<JokeView>> getJokeByType(@RequestParam String type) {
+        return ResponseEntity.ok(jokesService.getJokeByType(type));
     }
 }

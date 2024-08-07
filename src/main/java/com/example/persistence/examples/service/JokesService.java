@@ -3,6 +3,7 @@ package com.example.persistence.examples.service;
 import com.example.persistence.examples.api.JokesClient;
 import com.example.persistence.examples.mapper.JokesEntityToDomainMapper;
 import com.example.persistence.examples.model.db.JokeEntity;
+import com.example.persistence.examples.model.db.JokeView;
 import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.repository.JokesRepository;
@@ -57,5 +58,14 @@ public final class JokesService {
 
     public int getJokesCount() {
         return repository.getJokesCount();
+    }
+
+    public List<JokeModel> findByPunchlineStartsWith(String word) {
+        List<JokeEntity> entities = repository.findByPunchlineStartsWithIgnoreCase(word);
+        return mapper.convert(entities);
+    }
+
+    public List<JokeView> getJokeByType(String type) {
+        return repository.getJokeByType(type);
     }
 }
