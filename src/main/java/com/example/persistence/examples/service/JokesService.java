@@ -54,4 +54,8 @@ public final class JokesService {
         JokeModel model = client.getJokeById(id);
         repository.save(new JokeEntity(model.type(), model.setup(), model.punchline()));
     }
+
+    public int getJokesCount() {
+        return repository.getJokesCount();
+    }
 }

@@ -26,13 +26,13 @@ public class JokesController {
     }
 
     @GetMapping("/joke")
-    public ResponseEntity<JokeModel> getJoke()  {
+    public ResponseEntity<JokeModel> getJoke() {
         JokeModel joke = jokesService.getJoke();
         return ResponseEntity.ok(joke);
     }
 
     @GetMapping("/joke/{id}")
-    public ResponseEntity<JokeModel> getJokeById(@PathVariable String id)  {
+    public ResponseEntity<JokeModel> getJokeById(@PathVariable String id) {
         JokeModel joke = jokesService.getJokeById(id);
         return ResponseEntity.ok(joke);
     }
@@ -59,5 +59,11 @@ public class JokesController {
     public ResponseEntity<String> saveJokeById(@PathVariable String id) {
         jokesService.saveJokeById(id);
         return ResponseEntity.ok(JOKE_SAVED);
+    }
+
+    @GetMapping("/jokes/db/count")
+    public ResponseEntity<String> getJokesCount() {
+        int count = jokesService.getJokesCount();
+        return ResponseEntity.ok("Jokes count is " + count);
     }
 }
