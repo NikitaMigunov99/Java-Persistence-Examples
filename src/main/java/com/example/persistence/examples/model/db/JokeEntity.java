@@ -1,10 +1,13 @@
 package com.example.persistence.examples.model.db;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +35,11 @@ public class JokeEntity {
 
     @Column(nullable = false)
     private String punchline;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    @JsonBackReference
+    private Author author;
 
     public JokeEntity(String type, String setup, String punchline) {
         this.type = type;
