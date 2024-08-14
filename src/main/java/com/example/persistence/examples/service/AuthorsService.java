@@ -1,23 +1,68 @@
 package com.example.persistence.examples.service;
 
-import com.example.persistence.examples.model.db.Author;
+import com.example.persistence.examples.api.JokesClient;
+import com.example.persistence.examples.mapper.AuthorEntityToDomainMapper;
+import com.example.persistence.examples.model.db.AuthorEntity;
+import com.example.persistence.examples.model.db.JokeEntity;
+import com.example.persistence.examples.model.domain.Author;
+import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.repository.AuthorsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthorsService {
 
     private final AuthorsRepository repository;
+    private final AuthorEntityToDomainMapper mapper;
+    private final JokesClient client;
 
     @Autowired
-    public AuthorsService(AuthorsRepository repository) {
+    public AuthorsService(AuthorsRepository repository,
+                          AuthorEntityToDomainMapper mapper,
+                          JokesClient client) {
         this.repository = repository;
+        this.mapper = mapper;
+        this.client = client;
     }
 
     public List<Author> getAuthors() {
-        return repository.findAll();
+        return mapper.convert(repository.findAll());
+    }
+
+    public void deleteAuthor(String name) {
+        repository.deleteAuthorByName(name);
+    }
+
+    public void createJokeAuthor(String name, Long id) {
+        AuthorEntity authorEntity = new AuthorEntity();
+        authorEntity.setName(name);
+        JokeModel jokeModel = client.getJokeById(id.toString());
+        JokeEntity jokeEntity = new JokeEntity(jokeModel.type(), jokeModel.setup(), jokeModel.punchline());
+        List<JokeEntity> list = List.of(jokeEntity);
+        list.forEach((entity -> entity.setAuthor(authorEntity)));
+        authorEntity.getJokes().addAll(list);
+        repository.save(authorEntity);
+    }
+
+    public void addJokeToAuthor(Long authorId, Long id) {
+        Optional<AuthorEntity> authorEntity = repository.findById(authorId);
+        if (authorEntity.isPresent()) {
+            AuthorEntity entity = authorEntity.get();
+            JokeModel jokeModel = client.getJokeById(id.toString());
+            entity.getJokes().add(getJokeEntity(jokeModel, entity));
+            repository.save(entity);
+        } else {
+            throw new NullPointerException("Could not find AuthorEntity with id=" + authorId);
+        }
+    }
+
+    private JokeEntity getJokeEntity(JokeModel jokeModel, AuthorEntity entity) {
+        JokeEntity jokeEntity = new JokeEntity(jokeModel.type(), jokeModel.setup(), jokeModel.punchline());
+        jokeEntity.setAuthor(entity);
+        return jokeEntity;
     }
 }

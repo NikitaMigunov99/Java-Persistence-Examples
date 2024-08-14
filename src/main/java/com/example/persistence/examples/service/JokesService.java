@@ -2,12 +2,10 @@ package com.example.persistence.examples.service;
 
 import com.example.persistence.examples.api.JokesClient;
 import com.example.persistence.examples.mapper.JokesEntityToDomainMapper;
-import com.example.persistence.examples.model.db.Author;
 import com.example.persistence.examples.model.db.JokeEntity;
 import com.example.persistence.examples.model.db.JokeView;
 import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
-import com.example.persistence.examples.repository.AuthorsRepository;
 import com.example.persistence.examples.repository.JokesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,16 +17,14 @@ public final class JokesService {
 
     private final JokesClient client;
     private final JokesRepository repository;
-    private final AuthorsRepository authorsRepository;
     private final JokesEntityToDomainMapper mapper;
 
     @Autowired
     public JokesService(JokesClient client,
                         JokesRepository repository,
-                        AuthorsRepository authorsRepository, JokesEntityToDomainMapper mapper) {
+                        JokesEntityToDomainMapper mapper) {
         this.client = client;
         this.repository = repository;
-        this.authorsRepository = authorsRepository;
         this.mapper = mapper;
     }
 
@@ -73,16 +69,5 @@ public final class JokesService {
 
     public void updateJokesType(String type) {
         repository.updateJokesType(type);
-    }
-
-    public void updateJokeAuthor(String name, Long id) {
-        Author author = new Author();
-        author.setName(name);
-        JokeModel jokeModel = client.getJokeById(id.toString());
-        JokeEntity jokeEntity = new JokeEntity(jokeModel.type(), jokeModel.setup(), jokeModel.punchline());
-        List<JokeEntity> list = List.of(jokeEntity);
-        list.forEach((entity -> entity.setAuthor(author)));
-        author.getJokes().addAll(list);
-        authorsRepository.save(author);
     }
 }

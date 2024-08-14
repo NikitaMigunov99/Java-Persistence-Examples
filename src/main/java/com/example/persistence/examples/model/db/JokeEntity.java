@@ -1,8 +1,9 @@
 package com.example.persistence.examples.model.db;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,14 +11,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * DB Entity of joke
  */
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,15 +39,24 @@ public class JokeEntity {
     @Column(nullable = false)
     private String punchline;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
-    @JsonBackReference
-    private Author author;
+    private AuthorEntity author;
 
     public JokeEntity(String type, String setup, String punchline) {
         this.type = type;
         this.setup = setup;
         this.punchline = punchline;
+    }
+
+    @Override
+    public String toString() {
+        return "JokeEntity{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", setup='" + setup + '\'' +
+                ", punchline='" + punchline + '\'' +
+                '}';
     }
 }
 

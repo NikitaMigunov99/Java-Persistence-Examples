@@ -1,10 +1,8 @@
 package com.example.persistence.examples.controller;
 
-import com.example.persistence.examples.model.db.Author;
 import com.example.persistence.examples.model.db.JokeView;
 import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
-import com.example.persistence.examples.service.AuthorsService;
 import com.example.persistence.examples.service.JokesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +22,10 @@ public class JokesController {
     private static final String JOKE_SAVED = "Joke was successfully saved";
 
     private final JokesService jokesService;
-    private final AuthorsService authorsService;
 
     @Autowired
-    public JokesController(JokesService jokesService, AuthorsService authorsService) {
+    public JokesController(JokesService jokesService) {
         this.jokesService = jokesService;
-        this.authorsService = authorsService;
     }
 
     @GetMapping("/joke")
@@ -88,17 +84,5 @@ public class JokesController {
     public ResponseEntity<String> updateJokesType(@RequestParam String type) {
         jokesService.updateJokesType(type);
         return ResponseEntity.ok("Jokes type updated");
-    }
-
-    @PostMapping("/db/author")
-    public ResponseEntity<String> addJokesAuthor(@RequestParam String author, @RequestParam Long id) {
-        jokesService.updateJokeAuthor(author, id);
-        return ResponseEntity.ok("Joke author added");
-    }
-
-    @GetMapping("/authors")
-    public ResponseEntity<List<Author>> getAuthors() {
-        List<Author> list = authorsService.getAuthors();
-        return ResponseEntity.ok(list);
     }
 }
