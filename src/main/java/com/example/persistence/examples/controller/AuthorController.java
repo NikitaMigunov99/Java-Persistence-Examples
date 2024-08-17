@@ -1,5 +1,6 @@
 package com.example.persistence.examples.controller;
 
+import com.example.persistence.examples.model.db.AuthorView;
 import com.example.persistence.examples.model.domain.Author;
 import com.example.persistence.examples.service.AuthorsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,11 @@ public class AuthorController {
     public ResponseEntity<String> addJokesAuthor(@RequestParam String author, @RequestParam Long id) {
         authorsService.createJokeAuthor(author, id);
         return ResponseEntity.ok("Joke author added");
+    }
+
+    @GetMapping("/author/name")
+    public ResponseEntity<List<AuthorView>> findByName(@RequestParam String name) {
+        return ResponseEntity.ok(authorsService.findByName(name));
     }
 
     @PutMapping("/author")

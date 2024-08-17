@@ -3,6 +3,7 @@ package com.example.persistence.examples.service;
 import com.example.persistence.examples.api.JokesClient;
 import com.example.persistence.examples.mapper.AuthorEntityToDomainMapper;
 import com.example.persistence.examples.model.db.AuthorEntity;
+import com.example.persistence.examples.model.db.AuthorView;
 import com.example.persistence.examples.model.db.JokeEntity;
 import com.example.persistence.examples.model.domain.Author;
 import com.example.persistence.examples.model.domain.JokeModel;
@@ -31,6 +32,10 @@ public class AuthorsService {
 
     public List<Author> getAuthors() {
         return mapper.convert(repository.findAll());
+    }
+
+    public List<AuthorView> findByName(String name) {
+        return repository.findByName(name);
     }
 
     public void deleteAuthor(String name) {
