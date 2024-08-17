@@ -13,9 +13,13 @@ import java.util.stream.Collectors;
 public class AuthorEntityToDomainMapper {
 
     private final JokesEntityToDomainMapper jokesMapper;
+    private final AddressEntityToDomainMapper addressMapper;
 
-    public AuthorEntityToDomainMapper(JokesEntityToDomainMapper jokesMapper) {
+    public AuthorEntityToDomainMapper(
+            JokesEntityToDomainMapper jokesMapper,
+            AddressEntityToDomainMapper addressMapper) {
         this.jokesMapper = jokesMapper;
+        this.addressMapper = addressMapper;
     }
 
     public List<Author> convert(List<AuthorEntity> authorEntities) {
@@ -31,7 +35,8 @@ public class AuthorEntityToDomainMapper {
         return new Author(
                 entity.getId().toString(),
                 entity.getName(),
-                jokes
+                jokes,
+                addressMapper.toDomain(entity.getAddress())
         );
     }
 }

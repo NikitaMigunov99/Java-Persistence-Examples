@@ -31,6 +31,9 @@ public class AuthorEntity {
 
     private String name;
 
+    @OneToOne(mappedBy = "author", cascade = CascadeType.ALL)
+    private AddressEntity address;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<JokeEntity> jokes = new ArrayList<>();
 

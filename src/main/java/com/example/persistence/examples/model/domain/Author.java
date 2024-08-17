@@ -5,6 +5,7 @@ import java.util.List;
 public record Author(
         String id,
         String name,
-        List<JokeModel> jokes
+        List<JokeModel> jokes,
+        Address address
 ) {
 }
