@@ -17,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public class JavaPersistenceExamplesApplicationTest {
 
-    private static final String DATABASE_NAME = "spring-app";
+    private static final String DATABASE_NAME = "jokes-app";
 
     @Autowired
     private JokesRepository jokesRepository;
