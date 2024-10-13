@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: persistence-examples-deployment
+spec:
+  selector:
+    matchLabels:
+      app: persistence-examples
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: persistence-examples
+    spec:
+      containers:
+        - name: persistence-examples
+          image: nikita99m/persistence-examples
+          ports:
+            - containerPort: 7010
+          envFrom:
+            - configMapRef:
+                name: my-configmap

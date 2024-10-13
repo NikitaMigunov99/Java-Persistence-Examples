@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: persistence-examples
+spec:
+  selector:
+    app: persistence-examples
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 7010
