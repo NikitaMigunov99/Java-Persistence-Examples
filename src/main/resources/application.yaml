@@ -11,8 +11,6 @@ spring:
     name: Java Persistence Examples
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
-    username: sa
-    password: password
     driverClassName: org.postgresql.Driver
     hikari:
       connectionTimeout: 20000
