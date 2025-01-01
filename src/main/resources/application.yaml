@@ -3,6 +3,11 @@ server:
 
 logging:
   level:
+    org:
+      springframework:
+        transaction: DEBUG
+      hibernate:
+        type: trace
     project:
       user:
         UserClient: DEBUG

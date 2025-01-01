@@ -26,4 +26,9 @@ public interface JokesRepository extends JpaRepository<JokeEntity, Long> {
     @Query("update JokeEntity j set j.type = 'general' where j.type = :type")
     @Transactional
     void updateJokesType(@Param("type") String type);
+
+    @Modifying
+    @Transactional
+    @Query(value = "TRUNCATE TABLE joke_entity", nativeQuery = true)
+    void truncateTable();
 }

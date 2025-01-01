@@ -17,9 +17,9 @@ public class JokesEntityToDomainMapper {
         return dbList.stream().map(this::toModel).collect(Collectors.toList());
     }
 
-    private JokeModel toModel(JokeEntity entity) {
+    public JokeModel toModel(JokeEntity entity) {
         return new JokeModel(
-                entity.getId().toString(),
+                entity.getId(),
                 entity.getType(),
                 entity.getSetup(),
                 entity.getPunchline()

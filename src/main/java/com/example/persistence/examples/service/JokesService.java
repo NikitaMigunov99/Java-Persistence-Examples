@@ -8,12 +8,15 @@ import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.repository.JokesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public final class JokesService {
+public class JokesService {
 
     private final JokesClient client;
     private final JokesRepository repository;
@@ -40,13 +43,66 @@ public final class JokesService {
         return client.getJokesList();
     }
 
+    @Cacheable(cacheNames = "jokesList")
     public List<JokeModel> getJokesDB() {
         List<JokeEntity> entities = repository.findAll();
         return mapper.convert(entities);
     }
 
+    @Cacheable(cacheNames = "jokes", key = "#id")
+    public JokeModel getJokeByIdDB(Long id) {
+        JokeEntity entity = repository.findById(id).orElseThrow();
+        return mapper.toModel(entity);
+    }
+
+    @CacheEvict(value = "jokesList", allEntries = true)
     public void saveJoke(JokeSaveRequest request) {
         repository.save(new JokeEntity(request.type(), request.setup(), request.punchline()));
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "jokesList", allEntries = true),
+                    @CacheEvict(cacheNames = "jokes", key = "#id")
+            }
+    )
+    public JokeModel updateJoke(Long id, JokeSaveRequest request) {
+        JokeEntity entity = repository.findById(id).orElseThrow();
+        entity.setType(request.type());
+        entity.setSetup(request.setup());
+        entity.setPunchline(request.punchline());
+        repository.save(entity);
+        return mapper.toModel(entity);
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "jokesList", allEntries = true),
+                    @CacheEvict(cacheNames = "jokes", allEntries = true)
+            }
+    )
+    public void updateJokesType(String type) {
+        repository.updateJokesType(type);
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "jokesList", allEntries = true),
+                    @CacheEvict(cacheNames = "jokes", key = "#id")
+            }
+    )
+    public void removeJokeById(Long id) {
+        repository.deleteById(id);
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(cacheNames = "jokesList", allEntries = true),
+                    @CacheEvict(cacheNames = "jokes", allEntries = true)
+            }
+    )
+    public void removeAll() {
+        repository.truncateTable();
     }
 
     public void saveJokeById(String id) {
@@ -65,9 +121,5 @@ public final class JokesService {
 
     public List<JokeView> getJokeByType(String type) {
         return repository.getJokeByType(type);
-    }
-
-    public void updateJokesType(String type) {
-        repository.updateJokesType(type);
     }
 }
