@@ -1,6 +1,8 @@
 package com.example.persistence.examples.service;
 
 import com.example.persistence.examples.api.JokesClient;
+import com.example.persistence.examples.listener.AccessType;
+import com.example.persistence.examples.listener.EntityEvent;
 import com.example.persistence.examples.mapper.JokesEntityToDomainMapper;
 import com.example.persistence.examples.model.db.JokeEntity;
 import com.example.persistence.examples.model.db.JokeView;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +24,17 @@ public class JokesService {
     private final JokesClient client;
     private final JokesRepository repository;
     private final JokesEntityToDomainMapper mapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public JokesService(JokesClient client,
                         JokesRepository repository,
-                        JokesEntityToDomainMapper mapper) {
+                        JokesEntityToDomainMapper mapper,
+                        ApplicationEventPublisher eventPublisher) {
         this.client = client;
         this.repository = repository;
         this.mapper = mapper;
+        this.eventPublisher = eventPublisher;
     }
 
     public JokeModel getJoke() {
@@ -57,7 +63,9 @@ public class JokesService {
 
     @CacheEvict(value = "jokesList", allEntries = true)
     public void saveJoke(JokeSaveRequest request) {
+        var entity = new JokeEntity(request.type(), request.setup(), request.punchline());
         repository.save(new JokeEntity(request.type(), request.setup(), request.punchline()));
+        eventPublisher.publishEvent(new EntityEvent(entity, AccessType.CREATED));
     }
 
     @Caching(
@@ -72,6 +80,7 @@ public class JokesService {
         entity.setSetup(request.setup());
         entity.setPunchline(request.punchline());
         repository.save(entity);
+        eventPublisher.publishEvent(new EntityEvent(entity, AccessType.UPDATED));
         return mapper.toModel(entity);
     }
 
@@ -93,6 +102,7 @@ public class JokesService {
     )
     public void removeJokeById(Long id) {
         repository.deleteById(id);
+        eventPublisher.publishEvent(new EntityEvent(id, AccessType.REMOVED));
     }
 
     @Caching(
