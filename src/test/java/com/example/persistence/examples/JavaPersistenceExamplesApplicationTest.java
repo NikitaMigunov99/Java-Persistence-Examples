@@ -51,11 +51,12 @@ public class JavaPersistenceExamplesApplicationTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
+        System.out.println("setProperties host " + redis.getHost() + " port " + redis.getMappedPort(6379));
         dynamicPropertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         dynamicPropertyRegistry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-        dynamicPropertyRegistry.add("spring.redis.host", redis::getHost);
-        dynamicPropertyRegistry.add("spring.redis.port", () -> redis.getMappedPort(6379).toString());
+        dynamicPropertyRegistry.add("spring.data.redis.host", redis::getHost);
+        dynamicPropertyRegistry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
     }
 
     @AfterEach
