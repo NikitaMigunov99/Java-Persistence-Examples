@@ -29,6 +29,6 @@ public interface JokesRepository extends JpaRepository<JokeEntity, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "TRUNCATE TABLE joke_entity", nativeQuery = true)
+    @Query(value = "TRUNCATE TABLE joke", nativeQuery = true)
     void truncateTable();
 }

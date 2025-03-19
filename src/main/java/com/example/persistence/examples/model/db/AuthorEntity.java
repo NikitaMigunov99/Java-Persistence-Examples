@@ -10,6 +10,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "author")
 @Getter
 @Setter
 @NoArgsConstructor
