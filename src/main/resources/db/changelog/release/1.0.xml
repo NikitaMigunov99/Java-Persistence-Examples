@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
+
+    <changeSet id="add-tag-release-1.0" author="Nikita">
+        <tagDatabase tag="release-1.0"/>
+    </changeSet>
+
+    <changeSet id="1" author="Nikita">
+        <!-- Table address -->
+        <createTable tableName="address">
+            <column name="id" type="BIGINT"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="author_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Nikita">
+        <!-- Foreign key for author-address -->
+        <addForeignKeyConstraint baseTableName="address"
+                                 baseColumnNames="author_id"
+                                 referencedTableName="author"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_address_author"/>
+    </changeSet>
+
+</databaseChangeLog>
