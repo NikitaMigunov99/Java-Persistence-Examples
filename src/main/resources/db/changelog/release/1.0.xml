@@ -9,7 +9,7 @@
     </changeSet>
 
     <changeSet id="create-address-table" author="Nikita">
-        <sqlFile path="sql/create-address.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="../sql/create-address.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
 </databaseChangeLog>
