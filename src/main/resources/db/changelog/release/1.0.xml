@@ -8,22 +8,8 @@
         <tagDatabase tag="release-1.0"/>
     </changeSet>
 
-    <changeSet id="1" author="Nikita">
-        <!-- Table address -->
-        <createTable tableName="address">
-            <column name="id" type="BIGINT"/>
-            <column name="city" type="VARCHAR(255)"/>
-            <column name="author_id" type="BIGINT"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="2" author="Nikita">
-        <!-- Foreign key for author-address -->
-        <addForeignKeyConstraint baseTableName="address"
-                                 baseColumnNames="author_id"
-                                 referencedTableName="author"
-                                 referencedColumnNames="id"
-                                 constraintName="fk_address_author"/>
+    <changeSet id="create-address-table" author="Nikita">
+        <sqlFile path="sql/create-address.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
 </databaseChangeLog>
