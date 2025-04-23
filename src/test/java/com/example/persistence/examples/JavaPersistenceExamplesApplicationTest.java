@@ -12,19 +12,19 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
 @Testcontainers
+@Profile("local")
 public class JavaPersistenceExamplesApplicationTest {
 
     private static final String DATABASE_NAME = "jokes-app";
@@ -40,23 +40,23 @@ public class JavaPersistenceExamplesApplicationTest {
     private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:11.1")
             .withDatabaseName(DATABASE_NAME).withUsername("username").withPassword("password");
 
-    @Container
-    private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7.2"))
-            .withExposedPorts(6379);
+//    @Container
+//    private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7.2"))
+//            .withExposedPorts(6379);
 
     static {
         postgreSQLContainer.start();
-        redis.start();
+        //redis.start();
     }
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
-        System.out.println("setProperties host " + redis.getHost() + " port " + redis.getMappedPort(6379));
+        //System.out.println("setProperties host " + redis.getHost() + " port " + redis.getMappedPort(6379));
         dynamicPropertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         dynamicPropertyRegistry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-        dynamicPropertyRegistry.add("spring.data.redis.host", redis::getHost);
-        dynamicPropertyRegistry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
+//        dynamicPropertyRegistry.add("spring.data.redis.host", redis::getHost);
+//        dynamicPropertyRegistry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
     }
 
     @AfterEach

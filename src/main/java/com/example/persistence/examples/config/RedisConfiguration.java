@@ -1,0 +1,60 @@
+package com.example.persistence.examples.config;
+
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+
+@Configuration
+public class RedisConfiguration {
+
+    @Profile("!local")
+    @Bean(destroyMethod = "shutdown")
+    public ClientResources redisClientResources() {
+        return DefaultClientResources.create();
+    }
+
+    @Bean
+    public ClientOptions redisClientOptions() {
+        return ClientOptions.builder()
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .autoReconnect(true).build();
+    }
+
+    @Bean
+    public LettucePoolingClientConfiguration lettucePoolingClientConfiguration(
+            ClientOptions redisClientOptions,
+            ClientResources redisClientResources,
+            RedisProperties redisProperties) {
+        return LettucePoolingClientConfiguration.builder()
+                .commandTimeout(redisProperties.getReadTimeout())
+                .poolConfig(redisProperties.getPoolConfig())
+                .clientOptions(redisClientOptions)
+                .clientResources(redisClientResources).build();
+    }
+
+    @Bean
+    public RedisClusterConfiguration customRedisCluster(RedisProperties redisProperties) {
+        System.out.println("RedisProperties: " + redisProperties);
+        RedisClusterConfiguration configuration = new RedisClusterConfiguration(redisProperties.getNodes());
+        configuration.setUsername(redisProperties.getUsername());
+        configuration.setPassword(redisProperties.getPassword());
+        return new RedisClusterConfiguration(redisProperties.getNodes());
+    }
+
+    @Bean
+    public RedisConnectionFactory lettuceConnectionFactory(
+            RedisClusterConfiguration customRedisCluster,
+            LettucePoolingClientConfiguration lettucePoolingClientConfiguration) {
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(customRedisCluster,
+                lettucePoolingClientConfiguration);
+        factory.afterPropertiesSet();
+        return factory;
+    }
+}
