@@ -55,6 +55,11 @@ public class JokesService {
         return mapper.toModel(entity);
     }
 
+    public JokeModel getJokeByIdDBWithoutCaching(Long id) {
+        JokeEntity entity = repository.findById(id).orElseThrow();
+        return mapper.toModel(entity);
+    }
+
     @CacheEvict(value = "jokesList", allEntries = true)
     public void saveJoke(JokeSaveRequest request) {
         repository.save(new JokeEntity(request.type(), request.setup(), request.punchline()));

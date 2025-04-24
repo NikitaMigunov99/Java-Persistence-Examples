@@ -84,29 +84,6 @@ public class JavaPersistenceExamplesApplicationTest {
         dynamicPropertyRegistry.add("redis.config.nodes", () -> nodes);
     }
 
-    @Primary
-    @Bean(destroyMethod = "shutdown")
-    public ClientResources redisClientResources() {
-        final SocketAddressResolver socketAddressResolver = new SocketAddressResolver() {
-            @Override
-            public SocketAddress resolve(RedisURI redisURI) {
-                Integer mappedPort = redisClusterNotPortMapping.get(redisURI.getPort());
-                if (mappedPort != null) {
-                    SocketAddress socketAddress = redisClusterSocketAddresses.get(mappedPort);
-                    if (socketAddress != null) {
-                        return socketAddress;
-                    }
-                    redisURI.setPort(mappedPort);
-                }
-                redisURI.setHost(DockerClientFactory.instance().dockerHostIpAddress());
-                SocketAddress socketAddress = super.resolve(redisURI);
-                redisClusterSocketAddresses.putIfAbsent(redisURI.getPort(), socketAddress);
-                return socketAddress;
-            }
-        };
-        return ClientResources.builder().socketAddressResolver(socketAddressResolver).build();
-    }
-
     @AfterEach
     public void tearDown() {
         jokesService.removeAll();
@@ -175,6 +152,11 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertEquals(secondJoke, jokesService.getJokeByIdDB(realID));
         System.out.println("\nget joke id=" + realID);
         Assertions.assertEquals(secondJoke, jokesService.getJokeByIdDB(realID));
+
+        System.out.println("\nWithout Caching get joke id=" + realID);
+        Assertions.assertEquals(secondJoke, jokesService.getJokeByIdDBWithoutCaching(realID));
+        System.out.println("\nWithout Caching get joke id=" + realID);
+        Assertions.assertEquals(secondJoke, jokesService.getJokeByIdDBWithoutCaching(realID));
 
 //        var updatedJokeRequest = new JokeSaveRequest("general", "What did the duck say when he bought lipstick?", "Put it on my bill");
 //        var updatedJoke = new JokeModel(2L, "general", "What did the duck say when he bought lipstick?", "Put it on my bill");
