@@ -50,7 +50,7 @@ public class LocalRedisInitializer implements ApplicationContextInitializer<Conf
             redisClusterNotPortMapping.put(port, mappedPort);
             nodes.add(hostAddress + ":" + mappedPort);
         });
-        System.out.println("nodes: " + nodes);
+        System.out.println("debug nodes: " + nodes);
         setProperties(environment, "redis.config.nodes", nodes);
     }
 
