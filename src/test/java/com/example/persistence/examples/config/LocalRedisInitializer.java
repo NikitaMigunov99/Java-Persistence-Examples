@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Configuration
+//@Configuration
 public class LocalRedisInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
     private static final Set<Integer> redisClusterPorts = Set.of(7000, 7001, 7002, 7003, 7004, 7005);
     private static final List<String> nodes = new ArrayList<>();
@@ -54,8 +54,8 @@ public class LocalRedisInitializer implements ApplicationContextInitializer<Conf
         setProperties(environment, "redis.config.nodes", nodes);
     }
 
-    @Primary
-    @Bean(destroyMethod = "shutdown")
+//    @Primary
+//    @Bean(destroyMethod = "shutdown")
     public ClientResources redisClientResources() {
         final SocketAddressResolver socketAddressResolver = new SocketAddressResolver() {
             @Override

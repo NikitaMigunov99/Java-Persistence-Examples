@@ -5,6 +5,9 @@ import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.repository.JokesRepository;
 import com.example.persistence.examples.service.JokesService;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.SocketAddressResolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -12,21 +15,34 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @SpringBootTest
 @Testcontainers
 @Profile("local")
 public class JavaPersistenceExamplesApplicationTest {
 
+    private static final Set<Integer> redisClusterPorts = Set.of(7000, 7001, 7002, 7003, 7004, 7005);
+    private static final List<String> nodes = new ArrayList<>();
+    private static final ConcurrentMap<Integer, Integer> redisClusterNotPortMapping = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Integer, SocketAddress> redisClusterSocketAddresses = new ConcurrentHashMap<>();
     private static final String DATABASE_NAME = "jokes-app";
     private static final long ID = 2L;
 
@@ -39,6 +55,9 @@ public class JavaPersistenceExamplesApplicationTest {
     @Container
     private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:11.1")
             .withDatabaseName(DATABASE_NAME).withUsername("username").withPassword("password");
+    private static final GenericContainer<?> redis = new GenericContainer<>(
+            DockerImageName.parse("grokzen/redis-cluster:6.0.7"))
+            .withExposedPorts(redisClusterPorts.toArray(new Integer[0]));
 
 //    @Container
 //    private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7.2"))
@@ -46,7 +65,7 @@ public class JavaPersistenceExamplesApplicationTest {
 
     static {
         postgreSQLContainer.start();
-        //redis.start();
+        redis.start();
     }
 
     @DynamicPropertySource
@@ -55,8 +74,37 @@ public class JavaPersistenceExamplesApplicationTest {
         dynamicPropertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         dynamicPropertyRegistry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-//        dynamicPropertyRegistry.add("spring.data.redis.host", redis::getHost);
-//        dynamicPropertyRegistry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
+        String hostAddress = redis.getHost();
+        redisClusterPorts.forEach(port -> {
+            Integer mappedPort = redis.getMappedPort(port);
+            redisClusterNotPortMapping.put(port, mappedPort);
+            nodes.add(hostAddress + ":" + mappedPort);
+        });
+        System.out.println("debug nodes: " + nodes);
+        dynamicPropertyRegistry.add("redis.config.nodes", () -> nodes);
+    }
+
+    @Primary
+    @Bean(destroyMethod = "shutdown")
+    public ClientResources redisClientResources() {
+        final SocketAddressResolver socketAddressResolver = new SocketAddressResolver() {
+            @Override
+            public SocketAddress resolve(RedisURI redisURI) {
+                Integer mappedPort = redisClusterNotPortMapping.get(redisURI.getPort());
+                if (mappedPort != null) {
+                    SocketAddress socketAddress = redisClusterSocketAddresses.get(mappedPort);
+                    if (socketAddress != null) {
+                        return socketAddress;
+                    }
+                    redisURI.setPort(mappedPort);
+                }
+                redisURI.setHost(DockerClientFactory.instance().dockerHostIpAddress());
+                SocketAddress socketAddress = super.resolve(redisURI);
+                redisClusterSocketAddresses.putIfAbsent(redisURI.getPort(), socketAddress);
+                return socketAddress;
+            }
+        };
+        return ClientResources.builder().socketAddressResolver(socketAddressResolver).build();
     }
 
     @AfterEach
