@@ -5,9 +5,6 @@ import com.example.persistence.examples.model.domain.JokeModel;
 import com.example.persistence.examples.model.dto.JokeSaveRequest;
 import com.example.persistence.examples.repository.JokesRepository;
 import com.example.persistence.examples.service.JokesService;
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.resource.ClientResources;
-import io.lettuce.core.resource.SocketAddressResolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -15,24 +12,18 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @SpringBootTest
 @Testcontainers
@@ -40,9 +31,6 @@ import java.util.concurrent.ConcurrentMap;
 public class JavaPersistenceExamplesApplicationTest {
 
     private static final Set<Integer> redisClusterPorts = Set.of(7000, 7001, 7002, 7003, 7004, 7005);
-    private static final List<String> nodes = new ArrayList<>();
-    private static final ConcurrentMap<Integer, Integer> redisClusterNotPortMapping = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<Integer, SocketAddress> redisClusterSocketAddresses = new ConcurrentHashMap<>();
     private static final String DATABASE_NAME = "jokes-app";
     private static final long ID = 2L;
 
@@ -59,10 +47,6 @@ public class JavaPersistenceExamplesApplicationTest {
             DockerImageName.parse("grokzen/redis-cluster:6.0.7"))
             .withExposedPorts(redisClusterPorts.toArray(new Integer[0]));
 
-//    @Container
-//    private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7.2"))
-//            .withExposedPorts(6379);
-
     static {
         postgreSQLContainer.start();
         redis.start();
@@ -70,14 +54,14 @@ public class JavaPersistenceExamplesApplicationTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
-        //System.out.println("setProperties host " + redis.getHost() + " port " + redis.getMappedPort(6379));
         dynamicPropertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
         dynamicPropertyRegistry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+
+        List<String> nodes = new ArrayList<>();
         String hostAddress = redis.getHost();
         redisClusterPorts.forEach(port -> {
             Integer mappedPort = redis.getMappedPort(port);
-            redisClusterNotPortMapping.put(port, mappedPort);
             nodes.add(hostAddress + ":" + mappedPort);
         });
         System.out.println("debug nodes: " + nodes);
@@ -89,14 +73,14 @@ public class JavaPersistenceExamplesApplicationTest {
         jokesService.removeAll();
     }
 
-//    @Test
-//    @Order(value = 1)
+    @Test
+    @Order(value = 1)
     void testConnectionToDatabase() {
         Assertions.assertNotNull(jokesRepository);
     }
 
-//    @Test
-//    @Order(value = 2)
+    @Test
+    @Order(value = 2)
     void testAddJoke() {
         Assertions.assertEquals(0, jokesRepository.findAll().size());
 
@@ -107,8 +91,8 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertEquals(3, jokesRepository.findAll().size());
     }
 
-//    @Test
-//    @DisplayName("save jokes")
+    @Test
+    @DisplayName("save jokes")
     public void saveJoke() {
         JokeSaveRequest firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         JokeSaveRequest secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
@@ -158,23 +142,23 @@ public class JavaPersistenceExamplesApplicationTest {
         System.out.println("\nWithout Caching get joke id=" + realID);
         Assertions.assertEquals(secondJoke, jokesService.getJokeByIdDBWithoutCaching(realID));
 
-//        var updatedJokeRequest = new JokeSaveRequest("general", "What did the duck say when he bought lipstick?", "Put it on my bill");
-//        var updatedJoke = new JokeModel(2L, "general", "What did the duck say when he bought lipstick?", "Put it on my bill");
-//        jokesService.updateJoke(realID, updatedJokeRequest);
-//
-//        System.out.println("\nget jokes");
-//        Assertions.assertEquals(List.of(firstJoke, updatedJoke), jokesService.getJokesDB());
-//        System.out.println("\nget jokes");
-//        Assertions.assertEquals(List.of(firstJoke, updatedJoke), jokesService.getJokesDB());
-//
-//        System.out.println("\nget joke id=" + realID);
-//        Assertions.assertEquals(updatedJoke, jokesService.getJokeByIdDB(realID));
-//        System.out.println("\nget joke id=" + realID);
-//        Assertions.assertEquals(updatedJoke, jokesService.getJokeByIdDB(realID));
+        var updatedJokeRequest = new JokeSaveRequest("general", "What did the duck say when he bought lipstick?", "Put it on my bill");
+        var updatedJoke = new JokeModel(2L, "general", "What did the duck say when he bought lipstick?", "Put it on my bill");
+        jokesService.updateJoke(realID, updatedJokeRequest);
+
+        System.out.println("\nget jokes");
+        Assertions.assertEquals(List.of(firstJoke, updatedJoke), jokesService.getJokesDB());
+        System.out.println("\nget jokes");
+        Assertions.assertEquals(List.of(firstJoke, updatedJoke), jokesService.getJokesDB());
+
+        System.out.println("\nget joke id=" + realID);
+        Assertions.assertEquals(updatedJoke, jokesService.getJokeByIdDB(realID));
+        System.out.println("\nget joke id=" + realID);
+        Assertions.assertEquals(updatedJoke, jokesService.getJokeByIdDB(realID));
     }
 
-//    @Test
-//    @DisplayName("remove all jokes")
+    @Test
+    @DisplayName("remove all jokes")
     public void removeAllJokes() {
         var firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         var secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
@@ -207,8 +191,8 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertThrows(Exception.class, () -> jokesService.getJokeByIdDB(realID));
     }
 
-//    @Test
-//    @DisplayName("remove joke by id")
+    @Test
+    @DisplayName("remove joke by id")
     public void removeJokesById() {
         var firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         var secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
