@@ -20,8 +20,8 @@ import java.time.Duration;
 @Configuration
 public class RedisConfiguration {
 
-    @Profile("!local")
-    @Bean(destroyMethod = "shutdown")
+//    @Profile("!local")
+//    @Bean(destroyMethod = "shutdown")
     public ClientResources redisClientResources() {
         return DefaultClientResources.create();
     }
