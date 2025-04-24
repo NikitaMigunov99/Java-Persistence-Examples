@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
@@ -53,6 +54,7 @@ public class LocalRedisInitializer implements ApplicationContextInitializer<Conf
         setProperties(environment, "redis.config.nodes", nodes);
     }
 
+    @Primary
     @Bean(destroyMethod = "shutdown")
     public ClientResources redisClientResources() {
         final SocketAddressResolver socketAddressResolver = new SocketAddressResolver() {
