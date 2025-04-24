@@ -6,10 +6,16 @@ import io.lettuce.core.resource.DefaultClientResources;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
 public class RedisConfiguration {
@@ -56,5 +62,19 @@ public class RedisConfiguration {
                 lettucePoolingClientConfiguration);
         factory.afterPropertiesSet();
         return factory;
+    }
+
+    @Bean
+    public RedisCacheConfiguration cacheConfiguration() {
+        return RedisCacheConfiguration
+                .defaultCacheConfig()
+                .disableCachingNullValues()
+                .entryTtl(Duration.ofMinutes(5))
+                .serializeKeysWith(RedisSerializationContext
+                        .SerializationPair
+                        .fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext
+                        .SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer()));
     }
 }
