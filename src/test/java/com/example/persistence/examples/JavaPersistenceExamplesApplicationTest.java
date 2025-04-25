@@ -49,7 +49,7 @@ public class JavaPersistenceExamplesApplicationTest {
 
     static {
         postgreSQLContainer.start();
-        //redis.start();
+        redis.start();
     }
 
     @DynamicPropertySource
@@ -58,14 +58,14 @@ public class JavaPersistenceExamplesApplicationTest {
         dynamicPropertyRegistry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         dynamicPropertyRegistry.add("spring.datasource.password", postgreSQLContainer::getPassword);
 
-//        List<String> nodes = new ArrayList<>();
-//        String hostAddress = redis.getHost();
-//        redisClusterPorts.forEach(port -> {
-//            Integer mappedPort = redis.getMappedPort(port);
-//            nodes.add(hostAddress + ":" + mappedPort);
-//        });
-//        System.out.println("debug nodes: " + nodes);
-//        dynamicPropertyRegistry.add("redis.config.nodes", () -> nodes);
+        List<String> nodes = new ArrayList<>();
+        String hostAddress = redis.getHost();
+        redisClusterPorts.forEach(port -> {
+            Integer mappedPort = redis.getMappedPort(port);
+            nodes.add(hostAddress + ":" + mappedPort);
+        });
+        System.out.println("debug nodes: " + nodes);
+        dynamicPropertyRegistry.add("redis.config.nodes", () -> nodes);
     }
 
     @AfterEach
