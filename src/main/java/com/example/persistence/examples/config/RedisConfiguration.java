@@ -4,6 +4,9 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.CachingConfigurer;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.LoggingCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -19,7 +22,12 @@ import java.time.Duration;
 
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
-public class RedisConfiguration {
+public class RedisConfiguration implements CachingConfigurer {
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new LoggingCacheErrorHandler();
+    }
 
     @Bean(destroyMethod = "shutdown")
     public ClientResources redisClientResources() {
