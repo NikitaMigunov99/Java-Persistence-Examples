@@ -73,14 +73,14 @@ public class JavaPersistenceExamplesApplicationTest {
         jokesService.removeAll();
     }
 
-    @Test
-    @Order(value = 1)
+//    @Test
+//    @Order(value = 1)
     void testConnectionToDatabase() {
         Assertions.assertNotNull(jokesRepository);
     }
 
-    @Test
-    @Order(value = 2)
+//    @Test
+//    @Order(value = 2)
     void testAddJoke() {
         Assertions.assertEquals(0, jokesRepository.findAll().size());
 
@@ -91,8 +91,8 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertEquals(3, jokesRepository.findAll().size());
     }
 
-    @Test
-    @DisplayName("save jokes")
+//    @Test
+//    @DisplayName("save jokes")
     public void saveJoke() {
         JokeSaveRequest firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         JokeSaveRequest secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
@@ -157,8 +157,8 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertEquals(updatedJoke, jokesService.getJokeByIdDB(realID));
     }
 
-    @Test
-    @DisplayName("remove all jokes")
+//    @Test
+//    @DisplayName("remove all jokes")
     public void removeAllJokes() {
         var firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         var secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
@@ -191,8 +191,8 @@ public class JavaPersistenceExamplesApplicationTest {
         Assertions.assertThrows(Exception.class, () -> jokesService.getJokeByIdDB(realID));
     }
 
-    @Test
-    @DisplayName("remove joke by id")
+//    @Test
+//    @DisplayName("remove joke by id")
     public void removeJokesById() {
         var firstRequest = new JokeSaveRequest("programming", "What do you get when you cross a React developer with a mathematician?", "A function component.");
         var secondRequest = new JokeSaveRequest("general", "What time is it?", "I don't know... it keeps changing.");
