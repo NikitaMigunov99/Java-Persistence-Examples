@@ -28,13 +28,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@NamedEntityGraphs(
+@NamedEntityGraphs(value = {
         @NamedEntityGraph(name = "jokes-only",
                 attributeNodes = {
-                        @NamedAttributeNode("address"),
+                        @NamedAttributeNode("jokes")
+                }),
+        @NamedEntityGraph(name = "all-attributes",
+                attributeNodes = {
+                       @NamedAttributeNode("address"),
                         @NamedAttributeNode("jokes")
                 })
-)
+})
 public class AuthorEntity {
 
     @Id
@@ -48,6 +52,7 @@ public class AuthorEntity {
     private AddressEntity address;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    //@Fetch(FetchMode.SUBSELECT) //Can solve N+1 problem using IN operator
     private List<JokeEntity> jokes = new ArrayList<>();
 
     @Override

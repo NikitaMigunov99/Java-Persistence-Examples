@@ -16,7 +16,7 @@ public interface AuthorsRepository extends JpaRepository<AuthorEntity, Long> {
 //    List<AuthorEntity> findAll();
 
     @Override
-    @EntityGraph(type = EntityGraph.EntityGraphType.FETCH, value = "jokes-only")
+    @EntityGraph(type = EntityGraph.EntityGraphType.FETCH, value = "all-attributes")
     List<AuthorEntity> findAll();
 
     @Transactional
