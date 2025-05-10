@@ -7,6 +7,7 @@ import com.example.persistence.examples.model.domain.Address;
 import com.example.persistence.examples.repository.AddressRepository;
 import com.example.persistence.examples.repository.AuthorsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class AddressService {
         repository.save(address);
     }
 
+    @Transactional(readOnly = true)
     public List<Address> getAddresses() {
         return mapper.convert(repository.findAll());
     }

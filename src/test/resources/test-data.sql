@@ -22,8 +22,8 @@ VALUES
 
 INSERT INTO address (id, city, author_id) VALUES
 (1, 'City 1', 1),
-(2, 'City 2', 2),
-(3, 'City 3', 3);
+(2, 'City 2', 3),
+(3, 'City 3', 5);
 
 
 
