@@ -10,6 +10,7 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +38,8 @@ import java.util.List;
 public class AuthorEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_seq")
+    @SequenceGenerator(name = "author_seq", sequenceName = "author_seq", allocationSize = 1)
     private Long id;
 
     private String name;

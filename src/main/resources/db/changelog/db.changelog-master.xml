@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.7.xsd">
 
     <changeSet id="1" author="Nikita">
-        <createSequence sequenceName="author_seq" startValue="1" incrementBy="50"/>
-        <createSequence sequenceName="joke_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="author_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="joke_seq" startValue="1" incrementBy="1"/>
     </changeSet>
 
     <changeSet id="2" author="Nikita">
