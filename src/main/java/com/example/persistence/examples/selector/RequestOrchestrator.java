@@ -20,27 +20,16 @@ import java.util.concurrent.locks.LockSupport;
 public class RequestOrchestrator {
 
     /**
-     * Number of requests generated
-     * during one scheduler iteration.
-     * <p>
-     * Since scheduler runs every second,
-     * this is effectively requests/sec.
-     */
-    private static final int REQUESTS_PER_SECOND = 500;
-
-    /**
-     * Max simultaneous in-flight requests.
-     */
-    private static final int MAX_IN_FLIGHT = 2_000;
-
-    /**
      * Small delay when max in-flight reached.
      */
     private static final long BACKPRESSURE_DELAY_MS = 10;
 
-    private final WeightedRequestFactorySelector selector;
 
+    private final WeightedRequestFactorySelector selector;
     private final AsyncRequestSender sender;
+    private final Semaphore inFlightSemaphore;
+    private final int requestsPerSecond;
+
 
     /**
      * Used only for heavy/blocking factories.
@@ -50,29 +39,28 @@ public class RequestOrchestrator {
     public RequestOrchestrator(WeightedRequestFactorySelector selector,
                                AsyncRequestSender sender,
                                @Qualifier("heavyExecutor")
-                               Executor heavyExecutor) {
+                               Executor heavyExecutor,
+                               int requestsPerSecond,
+                               int maxRequestsInFlight) {
         this.selector = selector;
         this.sender = sender;
         this.heavyExecutor = heavyExecutor;
+        this.inFlightSemaphore = new Semaphore(maxRequestsInFlight);
+        this.requestsPerSecond = requestsPerSecond;
     }
-
-    /**
-     * Limits simultaneous in-flight requests.
-     */
-    private final Semaphore inFlightSemaphore = new Semaphore(MAX_IN_FLIGHT);
 
     /**
      * Runs once per second.
      */
     @Scheduled(fixedRate = 1_000)
     public void orchestrate() {
-        for (int i = 0; i < REQUESTS_PER_SECOND; i++) {
+        for (int i = 0; i < requestsPerSecond; i++) {
             trySendRequest();
         }
     }
 
     private void trySendRequest() {
-        if (!inFlightSemaphore.tryAcquire()) {
+        while (!inFlightSemaphore.tryAcquire()) {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(BACKPRESSURE_DELAY_MS));
         }
         RequestFactory factory = selector.selectFactory();
