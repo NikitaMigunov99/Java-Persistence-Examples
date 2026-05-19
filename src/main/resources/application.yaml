@@ -1,6 +1,23 @@
 server:
   port: 7010
 
+generator:
+  clients:
+    - name: ios
+      code: IOS
+      request-number: 5000000
+      request-number-unit: DAYS
+
+    - name: android
+      code: ANDROID
+      request-number: 3000000
+      request-number-unit: DAYS
+
+    - name: partner
+      code: PARTNER
+      request-number: 50
+      request-number-unit: HOURS
+
 logging:
   level:
     org:
