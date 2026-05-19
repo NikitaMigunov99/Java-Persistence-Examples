@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
@@ -54,30 +55,32 @@ public class RequestOrchestrator {
      */
     @Scheduled(fixedRate = 1_000)
     public void orchestrate() {
+        CompletableFuture<Void>[] futures = new CompletableFuture[requestsPerSecond];
         for (int i = 0; i < requestsPerSecond; i++) {
-            trySendRequest();
+            futures[i] = trySendRequest();
         }
+        CompletableFuture.allOf(futures).exceptionally((e -> null)).join();
     }
 
-    private void trySendRequest() {
+    private CompletableFuture<Void> trySendRequest() {
         while (!inFlightSemaphore.tryAcquire()) {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(BACKPRESSURE_DELAY_MS));
         }
         RequestFactory factory = selector.selectFactory();
 
         if (factory instanceof HeavyFactory) {
-            CompletableFuture
+           return CompletableFuture
                     .supplyAsync(factory::createRequest, heavyExecutor)
                     .thenCompose(this::sendAsync)
                     .whenComplete(this::handleCompletion);
-            return;
         }
 
         try {
             RequestDto dto = factory.createRequest();
-            sendAsync(dto).whenComplete(this::handleCompletion);
+            return sendAsync(dto).whenComplete(this::handleCompletion);
         } catch (Exception ex) {
             handleCompletion(null, ex);
+            return CompletableFuture.failedFuture(ex);
         }
     }
 
