@@ -55,7 +55,7 @@ public class RequestOrchestrator {
      */
     @Scheduled(fixedRate = 1_000)
     public void orchestrate() {
-        CompletableFuture<Void>[] futures = new CompletableFuture[requestsPerSecond];
+        CompletableFuture<?>[] futures = new CompletableFuture[requestsPerSecond];
         for (int i = 0; i < requestsPerSecond; i++) {
             futures[i] = trySendRequest();
         }
