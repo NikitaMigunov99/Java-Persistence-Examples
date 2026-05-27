@@ -44,3 +44,9 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddlAuto: none
+
+app:
+  scheduler:
+    start-time: "18:00"
+    end-time: "12:30"
+    delay-ms: 3000 # 3 seconds
