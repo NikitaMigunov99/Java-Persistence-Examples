@@ -61,6 +61,7 @@ class NextExecutionCalculatorTest {
     void shouldScheduleNextDayWhenAfterStartButOutsideWindow() {
         when(properties.getStartTime()).thenReturn(LocalTime.of(8, 0));
         when(properties.getEndTime()).thenReturn(LocalTime.of(18, 0));
+        calculator = new NextExecutionCalculator(properties);
 
         LocalDateTime now = LocalDateTime.of(2026, 5, 27, 20, 0);
 

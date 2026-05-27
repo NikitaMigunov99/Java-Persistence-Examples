@@ -48,5 +48,5 @@ spring:
 app:
   scheduler:
     start-time: "18:00"
-    end-time: "12:30"
+    end-time: "13:30"
     delay-ms: 3000 # 3 seconds

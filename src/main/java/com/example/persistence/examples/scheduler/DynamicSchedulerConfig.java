@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -28,7 +29,15 @@ public class DynamicSchedulerConfig implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(
                 this::executeTask,
                 triggerContext -> {
-                    LocalDateTime nextRun = nextExecutionCalculator.calculateNextRun(LocalDateTime.now());
+                    log.info("calculateNextRun at {}", LocalTime.now());
+
+                    LocalDateTime now = LocalDateTime.now();
+                    if (triggerContext.lastCompletion() == null
+                            && nextExecutionCalculator.isInsideWindow(now.toLocalTime())) {
+                        return Instant.now();
+                    }
+
+                    LocalDateTime nextRun = nextExecutionCalculator.calculateNextRun(now);
                     return nextRun
                             .atZone(ZoneId.systemDefault())
                             .toInstant();

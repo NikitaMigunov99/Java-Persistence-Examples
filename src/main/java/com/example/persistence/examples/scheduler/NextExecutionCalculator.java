@@ -21,20 +21,10 @@ public class NextExecutionCalculator {
     }
 
     public LocalDateTime calculateNextRun(LocalDateTime now) {
-        boolean overnightWindow = end.isBefore(start);
         LocalTime currentTime = now.toLocalTime();
 
-        boolean insideWindow;
-
-        if (overnightWindow) {
-            // Example: 18:00 -> 08:00
-            insideWindow = !currentTime.isBefore(start) || currentTime.isBefore(end);
-        } else {
-            insideWindow = !currentTime.isBefore(start) && currentTime.isBefore(end);
-        }
-
         // Continue scheduling with delay
-        if (insideWindow) {
+        if (isInsideWindow(currentTime)) {
             return now.plus(delay);
         }
 
@@ -46,5 +36,29 @@ public class NextExecutionCalculator {
         }
 
         return LocalDateTime.of(nextDate, start);
+    }
+
+    /**
+     * Проверяет, находится ли заданное время внутри разрешённого временного окна.
+     *
+     * @return
+     * start = 09:00, end = 18:00, currentTime = 10:30 → true  (внутри дневного окна)
+     * start = 09:00, end = 18:00, currentTime = 20:00 → false (вне окна)
+     * start = 18:00, end = 06:00, currentTime = 20:00 → true  (в вечерней части ночного окна)
+     * start = 18:00, end = 06:00, currentTime = 05:00 → true  (в утренней части ночного окна)
+     * start = 18:00, end = 06:00, currentTime = 06:00 → false (на границе — вне окна)
+     *
+     * @param time Время для проверки
+     */
+    public boolean isInsideWindow(LocalTime time) {
+        boolean overnightWindow = end.isBefore(start);
+
+        if (overnightWindow) {
+            // Окно пересекает полночь: время должно быть >= start ИЛИ < end
+            return !time.isBefore(start) || time.isBefore(end);
+        } else {
+            // Обычное окно: время должно быть >= start И < end
+            return !time.isBefore(start) && time.isBefore(end);
+        }
     }
 }
